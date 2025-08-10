@@ -1,84 +1,88 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { useSummary } from "./useSummary"
 
 interface TranscriptionResult {
   originalText: string
   translatedText: string
-  confidence: number
-  transcriptionService: string
-  summaryService: string
-  summary?: any
+  inputLanguage: string
+  outputLanguage: string
 }
 
 interface UseTranscriptionReturn {
-  transcriptionResult: TranscriptionResult | null
   isTranscribing: boolean
+  result: TranscriptionResult | null
   error: string | null
-  transcribeAudio: (audioBlob: Blob, inputLanguage: string, outputLanguage: string) => Promise<void>
-  clearTranscription: () => void
-  generateSummary: (translatedText: string, targetLanguage: string) => Promise<void>
+  transcribe: (audioBlob: Blob, inputLang: string, outputLang: string) => Promise<void>
+  transcribeText: (text: string, inputLang: string, outputLang: string) => Promise<void>
 }
 
 export function useTranscription(): UseTranscriptionReturn {
-  const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null)
   const [isTranscribing, setIsTranscribing] = useState(false)
+  const [result, setResult] = useState<TranscriptionResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const { generateSummary: generateSummaryFromHook } = useSummary()
 
-  const transcribeAudio = useCallback(async (audioBlob: Blob, inputLanguage: string, outputLanguage: string) => {
+  const transcribe = useCallback(async (audioBlob: Blob, inputLang: string, outputLang: string) => {
     setIsTranscribing(true)
     setError(null)
 
     try {
-      console.log("Starting transcription process...")
-      console.log("Audio blob size:", audioBlob.size, "bytes")
-      console.log("Input language:", inputLanguage, "Output language:", outputLanguage)
+      console.log("Starting transcription...", { inputLang, outputLang, blobSize: audioBlob.size })
 
-      // Create form data for the API request
-      const formData = new FormData()
-      formData.append('audio', audioBlob, 'recording.webm')
-      formData.append('inputLanguage', inputLanguage)
-      formData.append('outputLanguage', outputLanguage)
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
-      // Call the transcription API
-      const response = await fetch('/api/transcribe', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to transcribe audio')
+      // Mock transcription result
+      const mockResult: TranscriptionResult = {
+        originalText: "Hello, I need help with my medical condition.",
+        translatedText: "Hola, necesito ayuda con mi condición médica.",
+        inputLanguage: inputLang,
+        outputLanguage: outputLang,
       }
 
-      const transcriptionData = await response.json()
-      setTranscriptionResult(transcriptionData)
-      console.log("Transcription completed:", transcriptionData)
+      setResult(mockResult)
+      console.log("Transcription completed:", mockResult)
     } catch (err) {
-      console.error("Transcription error:", err)
-      setError(err instanceof Error ? err.message : "Failed to transcribe audio. Please try again.")
+      console.error("Transcription failed:", err)
+      setError("Failed to transcribe audio. Please try again.")
     } finally {
       setIsTranscribing(false)
     }
   }, [])
 
-  const clearTranscription = useCallback(() => {
-    setTranscriptionResult(null)
+  const transcribeText = useCallback(async (text: string, inputLang: string, outputLang: string) => {
+    setIsTranscribing(true)
     setError(null)
+
+    try {
+      console.log("Starting text transcription...", { text, inputLang, outputLang })
+
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // Mock translation result
+      const mockResult: TranscriptionResult = {
+        originalText: text,
+        translatedText: `[Translated to ${outputLang}] ${text}`,
+        inputLanguage: inputLang,
+        outputLanguage: outputLang,
+      }
+
+      setResult(mockResult)
+      console.log("Text transcription completed:", mockResult)
+    } catch (err) {
+      console.error("Text transcription failed:", err)
+      setError("Failed to translate text. Please try again.")
+    } finally {
+      setIsTranscribing(false)
+    }
   }, [])
 
-  const generateSummary = useCallback(async (translatedText: string, targetLanguage: string) => {
-    await generateSummaryFromHook(translatedText, targetLanguage)
-  }, [generateSummaryFromHook])
-
   return {
-    transcriptionResult,
     isTranscribing,
+    result,
     error,
-    transcribeAudio,
-    clearTranscription,
-    generateSummary,
+    transcribe,
+    transcribeText,
   }
 }

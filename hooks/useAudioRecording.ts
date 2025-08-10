@@ -7,7 +7,6 @@ interface UseAudioRecordingReturn {
   audioBlob: Blob | null
   startRecording: () => Promise<void>
   stopRecording: () => void
-  clearRecording: () => void
   error: string | null
 }
 
@@ -22,9 +21,12 @@ export function useAudioRecording(): UseAudioRecordingReturn {
 
   const startRecording = useCallback(async () => {
     try {
+      console.log("Starting audio recording...")
       setError(null)
-      console.log("Requesting microphone access...")
+      setAudioBlob(null)
+      chunksRef.current = []
 
+      // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -34,14 +36,16 @@ export function useAudioRecording(): UseAudioRecordingReturn {
       })
 
       streamRef.current = stream
-      chunksRef.current = []
+      console.log("Microphone access granted")
 
+      // Create MediaRecorder
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: "audio/webm;codecs=opus",
       })
 
       mediaRecorderRef.current = mediaRecorder
 
+      // Handle data available
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           chunksRef.current.push(event.data)
@@ -49,75 +53,55 @@ export function useAudioRecording(): UseAudioRecordingReturn {
         }
       }
 
+      // Handle recording stop
       mediaRecorder.onstop = () => {
-        console.log("MediaRecorder stopped, creating blob...")
-        const blob = new Blob(chunksRef.current, { type: "audio/webm;codecs=opus" })
+        console.log("MediaRecorder stopped")
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" })
         setAudioBlob(blob)
         console.log("Audio blob created:", blob.size, "bytes")
-
-        // Clean up stream
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => {
-            track.stop()
-            console.log("Audio track stopped")
-          })
-          streamRef.current = null
-        }
       }
 
-      mediaRecorder.onerror = (event) => {
-        console.error("MediaRecorder error:", event)
-        setError("Recording failed. Please try again.")
-        setIsRecording(false)
-      }
-
+      // Start recording
       mediaRecorder.start(100) // Collect data every 100ms
       setIsRecording(true)
       console.log("Recording started")
     } catch (err) {
-      console.error("Error starting recording:", err)
-      setError("Could not access microphone. Please check permissions.")
+      console.error("Failed to start recording:", err)
+      setError("Failed to access microphone. Please check permissions.")
       setIsRecording(false)
     }
   }, [])
 
   const stopRecording = useCallback(() => {
-    console.log("Stopping recording...")
+    console.log("Stopping audio recording...")
+
+    // Immediately set recording to false
     setIsRecording(false)
 
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    // Stop MediaRecorder if it exists and is recording
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
       mediaRecorderRef.current.stop()
       console.log("MediaRecorder stop called")
     }
 
-    // Clean up immediately
+    // Stop all tracks in the stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => {
         track.stop()
-        console.log("Audio track stopped immediately")
+        console.log("Audio track stopped")
       })
       streamRef.current = null
     }
+
+    // Clear references
+    mediaRecorderRef.current = null
   }, [])
-
-  const clearRecording = useCallback(() => {
-    console.log("Clearing recording...")
-    setAudioBlob(null)
-    setError(null)
-    chunksRef.current = []
-
-    // Stop any ongoing recording
-    if (isRecording) {
-      stopRecording()
-    }
-  }, [isRecording, stopRecording])
 
   return {
     isRecording,
     audioBlob,
     startRecording,
     stopRecording,
-    clearRecording,
     error,
   }
 }

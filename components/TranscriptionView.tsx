@@ -3,332 +3,161 @@
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Copy, Download, RotateCcw, AlertCircle, Loader2, FileText } from "lucide-react"
+import { Copy, Download, ArrowLeft, Mic } from "lucide-react"
 import { useTranscription } from "../hooks/useTranscription"
-import { useSummary } from "../hooks/useSummary"
 
 interface TranscriptionViewProps {
-  audioBlob: Blob | null
+  transcript: string
   inputLanguage: string
   outputLanguage: string
-  onStartNew: () => void
-  onGoBack: () => void
+  onBack: () => void
+  onNewRecording: () => void
 }
 
-export default function TranscriptionView({
-  audioBlob,
+export function TranscriptionView({
+  transcript,
   inputLanguage,
   outputLanguage,
-  onStartNew,
-  onGoBack,
+  onBack,
+  onNewRecording,
 }: TranscriptionViewProps) {
-  const { transcriptionResult, isTranscribing, error, transcribeAudio } = useTranscription()
-  const { summaryResult, isGeneratingSummary, error: summaryError, generateSummary, setSummaryResult, clearSummary } = useSummary()
+  const { isTranscribing, result, error, transcribeText } = useTranscription()
 
+  // Start transcription when component mounts
   useEffect(() => {
-    if (audioBlob) {
-      console.log("Starting transcription with audio blob:", audioBlob.size, "bytes")
-      transcribeAudio(audioBlob, inputLanguage, outputLanguage)
+    if (transcript && !result && !isTranscribing) {
+      transcribeText(transcript, inputLanguage, outputLanguage)
     }
-  }, [audioBlob, inputLanguage, outputLanguage, transcribeAudio])
+  }, [transcript, inputLanguage, outputLanguage, result, isTranscribing, transcribeText])
 
-  // Generate summary when transcription is complete
-  useEffect(() => {
-    if (transcriptionResult && transcriptionResult.translatedText && !summaryResult) {
-      // If summary is already included in transcription result, use it
-      if (transcriptionResult.summary) {
-        console.log("Using summary from transcription service...")
-        setSummaryResult(transcriptionResult.summary)
-      } else {
-        // Otherwise, generate summary separately
-        console.log("Transcription complete, generating summary...")
-        generateSummary(transcriptionResult.translatedText, outputLanguage)
-      }
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      // Could add a toast notification here
+      console.log("Text copied to clipboard")
+    } catch (err) {
+      console.error("Failed to copy text:", err)
     }
-  }, [transcriptionResult, summaryResult, generateSummary, setSummaryResult, outputLanguage])
-
-  const handleCopyText = (text: string) => {
-    navigator.clipboard.writeText(text)
-    console.log("Text copied to clipboard")
-  }
-
-  const formatSummaryForCopy = (summary: any) => {
-    return `**${summary.afterVisitNote}**
-
-**Instructions**
-${summary.instructions.map((instruction: string) => `- ${instruction}`).join('\n')}
-
-**Medication List**
-${summary.medicationList.map((medication: string) => `- ${medication}`).join('\n')}
-
-**Patient Summary**
-${summary.patientSummary}
-
-**Recommendations**
-${summary.recommendations.map((recommendation: string) => `- ${recommendation}`).join('\n')}
-
-**Standing Order**
-${summary.standingOrder}`
   }
 
   const handleDownload = () => {
-    if (transcriptionResult) {
-      let content = `Original Text (${inputLanguage}):\n${transcriptionResult.originalText}\n\nTranslated Text (${outputLanguage}):\n${transcriptionResult.translatedText}`
-      
-      // Add summary if available
-      if (summaryResult) {
-        content += `\n\n${formatSummaryForCopy(summaryResult)}`
-      }
-      
-      const blob = new Blob([content], { type: "text/plain" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "transcription.txt"
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      console.log("Transcription downloaded")
-    }
+    if (!result) return
+
+    const content = `Original Text (${result.inputLanguage}):\n${result.originalText}\n\nTranslated Text (${result.outputLanguage}):\n${result.translatedText}`
+    const blob = new Blob([content], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "transcription.txt"
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#e2eff4" }}>
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="w-full py-4 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between">
-            <Button
-              onClick={onGoBack}
-              variant="ghost"
-              size="sm"
-              className="text-slate-600 hover:text-slate-800 hover:bg-white/60"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-
-            <div className="flex justify-center flex-1">
-              <img src="/logo-daisy.svg" alt="Daisy Logo" className="h-16 w-auto" />
-            </div>
-
-            <div className="w-16"></div>
-          </div>
-        </div>
-      </header>
+      <div className="flex justify-between items-center p-4 border-b">
+        <img src="/logo-daisy.svg" alt="Daisy Logo" className="h-8 w-auto" />
+        <div className="text-sm text-gray-600">Voice Transcription</div>
+      </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4 sm:px-6">
-        <div className="max-w-4xl w-full">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Voice Transcription</h1>
-            <p className="text-slate-600">Your audio has been processed and transcribed</p>
+      <div className="flex-1 p-6 space-y-6">
+        {/* Processing State */}
+        {isTranscribing && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-lg text-gray-600">Processing your recording...</p>
           </div>
+        )}
 
-          {/* Error State */}
-          {error && (
-            <Alert className="mb-6 bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
-            </Alert>
-          )}
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
 
-          {/* Summary Error State */}
-          {summaryError && (
-            <Alert className="mb-6 bg-red-50 border-red-200">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">{summaryError}</AlertDescription>
-            </Alert>
-          )}
+        {/* No Speech Detected */}
+        {!transcript && !isTranscribing && (
+          <div className="text-center py-8">
+            <p className="text-lg text-gray-600 mb-4">No speech detected</p>
+            <Button onClick={onNewRecording} className="flex items-center gap-2">
+              <Mic className="w-4 h-4" />
+              Try Again
+            </Button>
+          </div>
+        )}
 
-          {/* Loading State */}
-          {isTranscribing && (
-            <Card className="mb-6 bg-white/80 backdrop-blur-sm border-slate-200">
-              <CardContent className="p-8">
-                <div className="flex items-center justify-center space-x-3">
-                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-                  <span className="text-lg font-medium text-slate-700">Processing your audio...</span>
-                </div>
-                <p className="text-center text-slate-500 mt-2">This may take a few moments</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Transcription Results */}
-          {transcriptionResult && !isTranscribing && (
-            <div className="space-y-6">
-              {/* Original Text */}
-              <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold text-slate-800 flex items-center justify-between">
-                    Original Text
-                    <Button
-                      onClick={() => handleCopyText(transcriptionResult.originalText)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-500 hover:text-slate-700"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-700 leading-relaxed">{transcriptionResult.originalText}</p>
-                  <div className="mt-3 text-sm text-slate-500">
-                    Confidence: {Math.round(transcriptionResult.confidence * 100)}%
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Translated Text */}
-              <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold text-slate-800 flex items-center justify-between">
-                    Translated Text
-                    <Button
-                      onClick={() => handleCopyText(transcriptionResult.translatedText)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-500 hover:text-slate-700"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-slate-700 leading-relaxed">{transcriptionResult.translatedText}</p>
-                </CardContent>
-              </Card>
-
-              {/* After-Visit Summary */}
-              {(isGeneratingSummary || summaryResult) && (
-                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
-                      <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                      {summaryResult?.afterVisitNote || "After Visit Note"}
-                      {summaryResult && (
-                        <Button
-                          onClick={() => handleCopyText(formatSummaryForCopy(summaryResult))}
-                          variant="ghost"
-                          size="sm"
-                          className="ml-auto text-slate-500 hover:text-slate-700"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {isGeneratingSummary ? (
-                      <div className="flex items-center space-x-3">
-                        <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                        <span className="text-slate-700">Generating summary...</span>
-                      </div>
-                    ) : summaryResult ? (
-                      <div className="space-y-6">
-                        {/* Instructions */}
-                        <div>
-                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Instructions</h4>
-                          <ul className="space-y-2">
-                            {summaryResult.instructions.map((instruction, index) => (
-                              <li key={index} className="text-slate-700 flex items-start">
-                                <span className="text-red-600 mr-2 font-bold">•</span>
-                                {instruction}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Medication List */}
-                        <div>
-                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Medication List</h4>
-                          <ul className="space-y-2">
-                            {summaryResult.medicationList.map((medication, index) => (
-                              <li key={index} className="text-slate-700 flex items-start">
-                                <span className="text-blue-600 mr-2 font-bold">•</span>
-                                {medication}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Patient Summary */}
-                        <div>
-                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Patient Summary</h4>
-                          <p className="text-slate-700 leading-relaxed">{summaryResult.patientSummary}</p>
-                        </div>
-
-                        {/* Recommendations */}
-                        <div>
-                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Recommendations</h4>
-                          <ul className="space-y-2">
-                            {summaryResult.recommendations.map((recommendation, index) => (
-                              <li key={index} className="text-slate-700 flex items-start">
-                                <span className="text-green-600 mr-2 font-bold">•</span>
-                                {recommendation}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Standing Order */}
-                        <div>
-                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Standing Order</h4>
-                          <p className="text-slate-700 font-medium">{summaryResult.standingOrder}</p>
-                        </div>
-                      </div>
-                    ) : null}
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        {/* Results */}
+        {result && (
+          <div className="space-y-6">
+            {/* Original Text */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Original Text</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-800 mb-4">{result.originalText}</p>
                 <Button
-                  onClick={handleDownload}
                   variant="outline"
-                  className="bg-white/80 backdrop-blur-sm border-slate-300 hover:bg-white/90"
+                  size="sm"
+                  onClick={() => handleCopy(result.originalText)}
+                  className="flex items-center gap-2"
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Transcription
-                </Button>
-
-                <Button onClick={onStartNew} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Start New Recording
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* No Audio State */}
-          {!audioBlob && !isTranscribing && (
-            <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
-              <CardContent className="p-8 text-center">
-                <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-slate-800 mb-2">No Audio Detected</h3>
-                <p className="text-slate-600 mb-6">No audio recording was found to transcribe.</p>
-                <Button onClick={onGoBack} variant="outline">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Go Back to Recording
+                  <Copy className="w-4 h-4" />
+                  Copy
                 </Button>
               </CardContent>
             </Card>
-          )}
-        </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="w-full py-4 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs sm:text-sm text-slate-500">
-            Designed for healthcare professionals • Secure & HIPAA compliant
-          </p>
-        </div>
-      </footer>
+            {/* Translated Text */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Translated Text</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-800 mb-4">{result.translatedText}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopy(result.translatedText)}
+                  className="flex items-center gap-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  Copy
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Button onClick={handleDownload} className="flex items-center gap-2 flex-1">
+                <Download className="w-4 h-4" />
+                Download Transcription
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onNewRecording}
+                className="flex items-center gap-2 flex-1 bg-transparent"
+              >
+                <Mic className="w-4 h-4" />
+                New Recording
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <div className="p-4 border-t">
+        <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+      </div>
     </div>
   )
 }

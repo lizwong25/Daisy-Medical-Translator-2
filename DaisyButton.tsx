@@ -1,28 +1,35 @@
 "use client"
 
 interface DaisyButtonProps {
-  isActive: boolean
-  onToggle: () => void
+  isRecording: boolean
+  onClick: () => void
 }
 
-export default function DaisyButton({ isActive, onToggle }: DaisyButtonProps) {
+export function DaisyButton({ isRecording, onClick }: DaisyButtonProps) {
   const handleClick = () => {
-    console.log("Daisy button clicked, isActive:", isActive)
-    onToggle()
+    console.log("DaisyButton clicked, isRecording:", isRecording)
+    onClick()
   }
 
   return (
     <button
       onClick={handleClick}
-      className="relative w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-full p-0 border-0 bg-transparent hover:bg-transparent focus:bg-transparent transition-all duration-300 hover:scale-105"
-      aria-pressed={isActive}
-      aria-label={isActive ? "Stop translation" : "Start translation"}
+      className="relative focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+      aria-label={isRecording ? "Stop recording" : "Start recording"}
+      aria-pressed={isRecording}
     >
       <img
-        src={isActive ? "/stop-button-daisy.svg" : "/start-button-daisy.svg"}
-        alt={isActive ? "Stop" : "Start"}
-        className="w-full h-full object-contain transition-all duration-300"
+        src={isRecording ? "/stop-button-daisy.svg" : "/start-button-daisy.svg"}
+        alt={isRecording ? "Stop recording" : "Start recording"}
+        className="w-24 h-24 sm:w-32 sm:h-32"
       />
+
+      {/* Recording indicator */}
+      {isRecording && (
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full animate-pulse">
+          <div className="absolute inset-1 bg-red-400 rounded-full animate-ping"></div>
+        </div>
+      )}
     </button>
   )
 }
