@@ -1,0 +1,187 @@
+import { useState } from 'react';
+import { DaisyButton } from './DaisyButton';
+import { LanguageSelector } from './LanguageSelector';
+
+export default function App() {
+const [isTranslating, setIsTranslating] = useState(false);
+const [inputLanguage, setInputLanguage] = useState('en');
+const [outputLanguage, setOutputLanguage] = useState('es');
+
+const handleToggleTranslation = () => {
+  setIsTranslating(!isTranslating);
+};
+
+return (
+  <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-lime-50 flex flex-col">
+    {/* Header */}
+    <header className="w-full py-8 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto text-center">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-emerald-700">
+          Daisy
+        </h1>
+        <p className="text-base sm:text-lg text-muted-foreground mt-1">
+          Medical Translation Assistant
+        </p>
+      </div>
+    </header>
+
+    {/* Main Content */}
+    <main className="flex-1 flex items-center justify-center px-4 sm:px-6">
+      <div className="max-w-4xl w-full">
+        {/* Mobile Layout - Vertical Stack */}
+        <div className="lg:hidden">
+          {/* Language Selectors Row */}
+          <div className="flex items-center justify-center gap-8 sm:gap-12 mb-8">
+            <LanguageSelector
+              label="Speak in"
+              value={inputLanguage}
+              onChange={setInputLanguage}
+            />
+            <LanguageSelector
+              label="Translate to"
+              value={outputLanguage}
+              onChange={setOutputLanguage}
+            />
+          </div>
+
+          {/* Central Daisy Button */}
+          <div className="flex flex-col items-center space-y-4">
+            <DaisyButton
+              isActive={isTranslating}
+              onToggle={handleToggleTranslation}
+            />
+            {isTranslating && (
+              <div className="flex items-center space-x-2 text-emerald-700" aria-live="polite">
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium">Listening...</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Layout - Horizontal */}
+        <div className="hidden lg:flex items-center justify-center gap-16 xl:gap-20">
+          {/* Input Language */}
+          <div className="flex flex-col items-center">
+            <LanguageSelector
+              label="Speak in"
+              value={inputLanguage}
+              onChange={setInputLanguage}
+            />
+          </div>
+
+          {/* Central Daisy Button */}
+          <div className="flex flex-col items-center space-y-4">
+            <DaisyButton
+              isActive={isTranslating}
+              onToggle={handleToggleTranslation}
+            />
+            {isTranslating && (
+              <div className="flex items-center space-x-2 text-emerald-700" aria-live="polite">
+                <div className="w-2 h-2 bg-emerald-600 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium">Listening...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Output Language */}
+          <div className="flex flex-col items-center">
+            <LanguageSelector
+              label="Translate to"
+              value={outputLanguage}
+              onChange={setOutputLanguage}
+            />
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="mt-10 sm:mt-12 text-center max-w-sm sm:max-w-md mx-auto px-4">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            {isTranslating
+              ? "Speak clearly into your microphone. Translation will begin automatically."
+              : "Press the daisy button to start real-time medical translation."}
+          </p>
+        </div>
+      </div>
+    </main>
+
+    {/* Footer */}
+    <footer className="w-full py-6 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto text-center">
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Designed for healthcare professionals • Secure & HIPAA compliant
+        </p>
+      </div>
+    </footer>
+  </div>
+);
+}
+
+import { useState } from 'react';
+
+interface DaisyButtonProps {
+isActive: boolean;
+onToggle: () => void;
+}
+
+export function DaisyButton({ isActive, onToggle }: DaisyButtonProps) {
+const label = isActive ? 'Stop translation' : 'Start translation';
+return (
+  <button
+    onClick={onToggle}
+    className="group relative transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-emerald-300/40 rounded-full"
+    aria-pressed={isActive}
+    aria-label={label}
+    title={label}
+  >
+    {/* Daisy SVG - Responsive sizing */}
+    <svg
+      width="160"
+      height="160"
+      viewBox="0 0 200 200"
+      className="transition-all duration-300 w-40 h-40 sm:w-48 sm:h-48 lg:w-52 lg:h-52"
+      role="img"
+      aria-hidden="true"
+    >
+      {/* Petals */}
+      {[...Array(8)].map((_, i) => (
+        <ellipse
+          key={i}
+          cx="100"
+          cy="40"
+          rx="12"
+          ry="35"
+          fill={isActive ? "#f59e0b" : "#fbbf24"}
+          transform={`rotate(${i * 45} 100 100)`}
+          className="transition-colors duration-300"
+        />
+      ))}
+
+      {/* Center circle */}
+      <circle
+        cx="100"
+        cy="100"
+        r="25"
+        fill={isActive ? "#059669" : "#10b981"}
+        className="transition-colors duration-300"
+      />
+
+      {/* Inner highlight */}
+      <circle
+        cx="100"
+        cy="100"
+        r="18"
+        fill={isActive ? "#047857" : "#059669"}
+        className="transition-colors duration-300"
+      />
+    </svg>
+
+    {/* Text overlay - Responsive text sizing */}
+    <div className="absolute inset-0 flex items-center justify-center">
+      <span className="text-white font-semibold text-base sm:text-lg select-none">
+        {isActive ? 'STOP' : 'START'}
+      </span>
+    </div>
+  </button>
+);
+}
