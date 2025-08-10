@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useSummary } from "./useSummary"
 
 interface TranscriptionResult {
   originalText: string
@@ -14,12 +15,14 @@ interface UseTranscriptionReturn {
   error: string | null
   transcribeAudio: (audioBlob: Blob, inputLanguage: string, outputLanguage: string) => Promise<void>
   clearTranscription: () => void
+  generateSummary: (translatedText: string, targetLanguage: string) => Promise<void>
 }
 
 export function useTranscription(): UseTranscriptionReturn {
   const [transcriptionResult, setTranscriptionResult] = useState<TranscriptionResult | null>(null)
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { generateSummary: generateSummaryFromHook } = useSummary()
 
   const transcribeAudio = useCallback(async (audioBlob: Blob, inputLanguage: string, outputLanguage: string) => {
     setIsTranscribing(true)
@@ -58,11 +61,16 @@ export function useTranscription(): UseTranscriptionReturn {
     setError(null)
   }, [])
 
+  const generateSummary = useCallback(async (translatedText: string, targetLanguage: string) => {
+    await generateSummaryFromHook(translatedText, targetLanguage)
+  }, [generateSummaryFromHook])
+
   return {
     transcriptionResult,
     isTranscribing,
     error,
     transcribeAudio,
     clearTranscription,
+    generateSummary,
   }
 }

@@ -4,8 +4,9 @@ import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Copy, Download, RotateCcw, AlertCircle, Loader2 } from "lucide-react"
+import { ArrowLeft, Copy, Download, RotateCcw, AlertCircle, Loader2, FileText } from "lucide-react"
 import { useTranscription } from "../hooks/useTranscription"
+import { useSummary } from "../hooks/useSummary"
 
 interface TranscriptionViewProps {
   audioBlob: Blob | null
@@ -23,6 +24,7 @@ export default function TranscriptionView({
   onGoBack,
 }: TranscriptionViewProps) {
   const { transcriptionResult, isTranscribing, error, transcribeAudio } = useTranscription()
+  const { summaryResult, isGeneratingSummary, error: summaryError, generateSummary } = useSummary()
 
   useEffect(() => {
     if (audioBlob) {
@@ -31,14 +33,47 @@ export default function TranscriptionView({
     }
   }, [audioBlob, inputLanguage, outputLanguage, transcribeAudio])
 
+  // Generate summary when transcription is complete
+  useEffect(() => {
+    if (transcriptionResult && transcriptionResult.translatedText && !summaryResult) {
+      console.log("Transcription complete, generating summary...")
+      generateSummary(transcriptionResult.translatedText, outputLanguage)
+    }
+  }, [transcriptionResult, summaryResult, generateSummary, outputLanguage])
+
   const handleCopyText = (text: string) => {
     navigator.clipboard.writeText(text)
     console.log("Text copied to clipboard")
   }
 
+  const formatSummaryForCopy = (summary: any) => {
+    return `**${summary.afterVisitNote}**
+
+**Instructions**
+${summary.instructions.map((instruction: string) => `- ${instruction}`).join('\n')}
+
+**Medication List**
+${summary.medicationList.map((medication: string) => `- ${medication}`).join('\n')}
+
+**Patient Summary**
+${summary.patientSummary}
+
+**Recommendations**
+${summary.recommendations.map((recommendation: string) => `- ${recommendation}`).join('\n')}
+
+**Standing Order**
+${summary.standingOrder}`
+  }
+
   const handleDownload = () => {
     if (transcriptionResult) {
-      const content = `Original Text (${inputLanguage}):\n${transcriptionResult.originalText}\n\nTranslated Text (${outputLanguage}):\n${transcriptionResult.translatedText}`
+      let content = `Original Text (${inputLanguage}):\n${transcriptionResult.originalText}\n\nTranslated Text (${outputLanguage}):\n${transcriptionResult.translatedText}`
+      
+      // Add summary if available
+      if (summaryResult) {
+        content += `\n\n${formatSummaryForCopy(summaryResult)}`
+      }
+      
       const blob = new Blob([content], { type: "text/plain" })
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
@@ -90,6 +125,14 @@ export default function TranscriptionView({
             <Alert className="mb-6 bg-red-50 border-red-200">
               <AlertCircle className="h-4 w-4 text-red-600" />
               <AlertDescription className="text-red-800">{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Summary Error State */}
+          {summaryError && (
+            <Alert className="mb-6 bg-red-50 border-red-200">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">{summaryError}</AlertDescription>
             </Alert>
           )}
 
@@ -151,6 +194,89 @@ export default function TranscriptionView({
                   <p className="text-slate-700 leading-relaxed">{transcriptionResult.translatedText}</p>
                 </CardContent>
               </Card>
+
+              {/* After-Visit Summary */}
+              {(isGeneratingSummary || summaryResult) && (
+                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
+                      <FileText className="h-5 w-5 mr-2 text-blue-600" />
+                      {summaryResult?.afterVisitNote || "After Visit Note"}
+                      {summaryResult && (
+                        <Button
+                          onClick={() => handleCopyText(formatSummaryForCopy(summaryResult))}
+                          variant="ghost"
+                          size="sm"
+                          className="ml-auto text-slate-500 hover:text-slate-700"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {isGeneratingSummary ? (
+                      <div className="flex items-center space-x-3">
+                        <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                        <span className="text-slate-700">Generating summary...</span>
+                      </div>
+                    ) : summaryResult ? (
+                      <div className="space-y-6">
+                        {/* Instructions */}
+                        <div>
+                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Instructions</h4>
+                          <ul className="space-y-2">
+                            {summaryResult.instructions.map((instruction, index) => (
+                              <li key={index} className="text-slate-700 flex items-start">
+                                <span className="text-red-600 mr-2 font-bold">•</span>
+                                {instruction}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Medication List */}
+                        <div>
+                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Medication List</h4>
+                          <ul className="space-y-2">
+                            {summaryResult.medicationList.map((medication, index) => (
+                              <li key={index} className="text-slate-700 flex items-start">
+                                <span className="text-blue-600 mr-2 font-bold">•</span>
+                                {medication}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Patient Summary */}
+                        <div>
+                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Patient Summary</h4>
+                          <p className="text-slate-700 leading-relaxed">{summaryResult.patientSummary}</p>
+                        </div>
+
+                        {/* Recommendations */}
+                        <div>
+                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Recommendations</h4>
+                          <ul className="space-y-2">
+                            {summaryResult.recommendations.map((recommendation, index) => (
+                              <li key={index} className="text-slate-700 flex items-start">
+                                <span className="text-green-600 mr-2 font-bold">•</span>
+                                {recommendation}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Standing Order */}
+                        <div>
+                          <h4 className="font-semibold text-slate-800 mb-3 text-lg">Standing Order</h4>
+                          <p className="text-slate-700 font-medium">{summaryResult.standingOrder}</p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
