@@ -22,6 +22,12 @@ OPENAI_API_KEY=sk-your-actual-api-key-here
 
 # Optional: Model configuration (defaults to gpt-4)
 OPENAI_MODEL=gpt-4
+
+# Optional: Transcription service (openai or seamless, defaults to openai)
+TRANSCRIPTION_SERVICE=openai
+
+# Optional: Summary service (openai or seamless, defaults to openai)
+SUMMARY_SERVICE=openai
 ```
 
 ### 3. Restart Development Server
@@ -36,6 +42,8 @@ npm run dev
 ### Environment Variables
 - `OPENAI_API_KEY` (required): Your OpenAI API key
 - `OPENAI_MODEL` (optional): Model to use (defaults to 'gpt-4')
+- `TRANSCRIPTION_SERVICE` (optional): Service to use for transcription ('openai' or 'seamless', defaults to 'openai')
+- `SUMMARY_SERVICE` (optional): Service to use for summary generation ('openai' or 'seamless', defaults to 'openai')
 
 ### API Endpoint
 - **URL**: `/api/generate-summary`
@@ -44,7 +52,7 @@ npm run dev
   ```json
   {
     "translatedText": "Patient conversation text",
-    "targetLanguage": "en|es|fr"
+    "targetLanguage": "en|es|zh"
   }
   ```
 - **Output**: JSON with medical summary sections

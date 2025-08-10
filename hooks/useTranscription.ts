@@ -7,6 +7,9 @@ interface TranscriptionResult {
   originalText: string
   translatedText: string
   confidence: number
+  transcriptionService: string
+  summaryService: string
+  summary?: any
 }
 
 interface UseTranscriptionReturn {
@@ -33,24 +36,29 @@ export function useTranscription(): UseTranscriptionReturn {
       console.log("Audio blob size:", audioBlob.size, "bytes")
       console.log("Input language:", inputLanguage, "Output language:", outputLanguage)
 
-      // Simulate transcription process
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Create form data for the API request
+      const formData = new FormData()
+      formData.append('audio', audioBlob, 'recording.webm')
+      formData.append('inputLanguage', inputLanguage)
+      formData.append('outputLanguage', outputLanguage)
 
-      // Mock transcription result
-      const mockResult: TranscriptionResult = {
-        originalText: "Hello, how are you feeling today? Can you describe your symptoms?",
-        translatedText:
-          inputLanguage === "en" && outputLanguage === "es"
-            ? "Hola, ¿cómo te sientes hoy? ¿Puedes describir tus síntomas?"
-            : "Translated text would appear here based on the selected languages.",
-        confidence: 0.95,
+      // Call the transcription API
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to transcribe audio')
       }
 
-      setTranscriptionResult(mockResult)
-      console.log("Transcription completed:", mockResult)
+      const transcriptionData = await response.json()
+      setTranscriptionResult(transcriptionData)
+      console.log("Transcription completed:", transcriptionData)
     } catch (err) {
       console.error("Transcription error:", err)
-      setError("Failed to transcribe audio. Please try again.")
+      setError(err instanceof Error ? err.message : "Failed to transcribe audio. Please try again.")
     } finally {
       setIsTranscribing(false)
     }

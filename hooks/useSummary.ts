@@ -16,6 +16,7 @@ interface UseSummaryReturn {
   isGeneratingSummary: boolean
   error: string | null
   generateSummary: (translatedText: string, targetLanguage: string) => Promise<void>
+  setSummaryResult: (summary: SummaryResult) => void
   clearSummary: () => void
 }
 
@@ -66,11 +67,17 @@ export function useSummary(): UseSummaryReturn {
     setError(null)
   }, [])
 
+  const setSummaryResultExternal = useCallback((summary: SummaryResult) => {
+    setSummaryResult(summary)
+    setError(null)
+  }, [])
+
   return {
     summaryResult,
     isGeneratingSummary,
     error,
     generateSummary,
+    setSummaryResult: setSummaryResultExternal,
     clearSummary,
   }
 }

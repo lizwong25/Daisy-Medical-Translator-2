@@ -24,7 +24,7 @@ export default function TranscriptionView({
   onGoBack,
 }: TranscriptionViewProps) {
   const { transcriptionResult, isTranscribing, error, transcribeAudio } = useTranscription()
-  const { summaryResult, isGeneratingSummary, error: summaryError, generateSummary } = useSummary()
+  const { summaryResult, isGeneratingSummary, error: summaryError, generateSummary, setSummaryResult, clearSummary } = useSummary()
 
   useEffect(() => {
     if (audioBlob) {
@@ -36,10 +36,17 @@ export default function TranscriptionView({
   // Generate summary when transcription is complete
   useEffect(() => {
     if (transcriptionResult && transcriptionResult.translatedText && !summaryResult) {
-      console.log("Transcription complete, generating summary...")
-      generateSummary(transcriptionResult.translatedText, outputLanguage)
+      // If summary is already included in transcription result, use it
+      if (transcriptionResult.summary) {
+        console.log("Using summary from transcription service...")
+        setSummaryResult(transcriptionResult.summary)
+      } else {
+        // Otherwise, generate summary separately
+        console.log("Transcription complete, generating summary...")
+        generateSummary(transcriptionResult.translatedText, outputLanguage)
+      }
     }
-  }, [transcriptionResult, summaryResult, generateSummary, outputLanguage])
+  }, [transcriptionResult, summaryResult, generateSummary, setSummaryResult, outputLanguage])
 
   const handleCopyText = (text: string) => {
     navigator.clipboard.writeText(text)

@@ -18,9 +18,9 @@ The Daisy Medical Translator now includes an automatic after-visit summary gener
 - Includes structured sections: Summary, Key Points, and Recommendations
 
 ### Multi-Language Support
+- **English (en)**: Default English summaries with medical terminology
 - **Spanish (es)**: Generates Spanish summaries with medical terminology
-- **French (fr)**: Generates French summaries with medical terminology  
-- **English (en)**: Default English summaries for other languages
+- **Mandarin (zh)**: Generates Mandarin Chinese summaries with medical terminology
 
 ### Summary Structure
 Each summary follows the exact medical format with these sections:

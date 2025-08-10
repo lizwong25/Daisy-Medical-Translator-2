@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
         languagePrompt = 'in Spanish'
         languageName = 'Spanish'
         break
-      case 'fr':
-        languagePrompt = 'in French'
-        languageName = 'French'
+      case 'zh':
+        languagePrompt = 'in Mandarin Chinese'
+        languageName = 'Mandarin Chinese'
         break
       default:
         languagePrompt = 'in English'
