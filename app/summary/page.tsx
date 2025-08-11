@@ -158,68 +158,60 @@ export default function SummaryPage() {
               <CardContent className="space-y-6">
                 {/* Instructions */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Instructions</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">指导</h3>
                   <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                    <p className="text-slate-800">• Schedule and complete CT abdomen with contrast within 1 week.</p>
-                    <p className="text-slate-800">• Omeprazole 20 mg – 1 tablet by mouth daily before breakfast.</p>
+                    <p className="text-slate-800">• 在 1 周内预约并完成腹部 CT（增强扫描）。</p>
+                    <p className="text-slate-800">• 奥美拉唑 20 毫克 – 每天早餐前口服 1 片。</p>
                     <p className="text-slate-800">
-                      • Acetaminophen 500 mg – 1–2 tablets by mouth every 6 hours as needed for pain (max 3,000 mg/day).
+                      • 对乙酰氨基酚 500 毫克 – 每 6 小时口服 1–2 片，按需缓解疼痛（每日最大剂量 3,000 毫克）。
                     </p>
-                    <p className="text-slate-800">• Follow up in 2 weeks after CT results.</p>
-                    <p className="text-slate-800">
-                      • Go to ER if severe abdominal pain, vomiting blood, or high fever develops.
-                    </p>
+                    <p className="text-slate-800">• CT 检查结果出来后 2 周内复诊。</p>
+                    <p className="text-slate-800">• 若出现剧烈腹痛、呕血或高热，请立即前往急诊。</p>
                   </div>
                 </div>
 
                 {/* Medication List */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Medication List</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">用药清单</h3>
                   <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                    <p className="text-slate-800">• Omeprazole 20 mg – 1 tablet by mouth daily before breakfast.</p>
+                    <p className="text-slate-800">• 奥美拉唑 20 毫克 – 每天早餐前口服 1 片。</p>
                     <p className="text-slate-800">
-                      • Acetaminophen 500 mg – 1–2 tablets by mouth every 6 hours as needed (max 3,000 mg/day).
+                      • 对乙酰氨基酚 500 毫克 – 每 6 小时口服 1–2 片，按需使用（每日最大剂量 3,000 毫克）。
                     </p>
-                    <p className="text-slate-800">
-                      • Lisinopril 10 mg – 1 tablet by mouth daily (continue current medication).
-                    </p>
+                    <p className="text-slate-800">• 赖诺普利 10 毫克 – 每天口服 1 片（继续原有用药）。</p>
                   </div>
                 </div>
 
                 {/* Patient Summary */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Patient Summary</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">病人摘要</h3>
                   <div className="bg-slate-50 rounded-lg p-4">
                     <p className="text-slate-800 leading-relaxed">
-                      45-year-old patient presented with abdominal pain that began yesterday evening. Pain is described
-                      as dull and constant, located in the upper abdomen, with associated nausea but no vomiting.
-                      Patient reports similar episodes 2-3 times over the past month. No fever, changes in bowel
-                      movements, or urinary symptoms. Currently taking Lisinopril for hypertension. No known allergies
-                      to medications.
+                      45 岁患者，昨晚开始出现腹痛。疼痛描述为持续性钝痛，位于上腹部，伴有恶心但无呕吐。
+                      患者报告在过去一个月内曾出现过 2–3 次类似发作。无发热、排便改变或泌尿系统症状。
+                      目前因高血压服用赖诺普利。无已知药物过敏史。
                     </p>
                   </div>
                 </div>
 
                 {/* Recommendations */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Recommendations</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">建议</h3>
                   <div className="bg-slate-50 rounded-lg p-4 space-y-2">
-                    <p className="text-slate-800">• Eat smaller, more frequent meals.</p>
-                    <p className="text-slate-800">• Avoid spicy, fatty, or acidic foods.</p>
-                    <p className="text-slate-800">• Stay hydrated with clear fluids.</p>
-                    <p className="text-slate-800">• Keep a food diary to identify triggers.</p>
-                    <p className="text-slate-800">• Elevate head of bed when sleeping.</p>
-                    <p className="text-slate-800">• Consider stress reduction techniques.</p>
+                    <p className="text-slate-800">• 少量多餐。</p>
+                    <p className="text-slate-800">• 避免辛辣、油腻或酸性食物。</p>
+                    <p className="text-slate-800">• 保持充足清淡液体摄入。</p>
+                    <p className="text-slate-800">• 保留饮食日记以寻找诱因。</p>
+                    <p className="text-slate-800">• 睡觉时抬高床头。</p>
+                    <p className="text-slate-800">• 适当进行减压放松活动。</p>
                   </div>
                 </div>
 
                 {/* Standing Order */}
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">Standing Order</h3>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">医嘱</h3>
                   <div className="bg-slate-50 rounded-lg p-4">
-                    <p className="text-slate-800">
-                      Abdominal pain, rule out gastritis | Dr. Sarah Smith | {new Date().toLocaleDateString("en-US")}
-                    </p>
+                    <p className="text-slate-800">腹痛，排除胃炎 | Sarah Smith 医生 | 2025 年 8 月 10 日</p>
                   </div>
                 </div>
               </CardContent>

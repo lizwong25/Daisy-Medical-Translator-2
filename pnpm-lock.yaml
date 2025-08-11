@@ -146,9 +146,6 @@ importers:
       sonner:
         specifier: 2.0.3
         version: 2.0.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      speech-recognition:
-        specifier: latest
-        version: 0.0.1
       tailwind-merge:
         specifier: ^2.5.5
         version: 2.5.5
@@ -1705,9 +1702,6 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
-  speech-recognition@0.0.1:
-    resolution: {integrity: sha512-OIYftveS+jDg4T6rsRO4UIyrsD6At7jjyZF5vEoCkP0GjLTqputvspxAWCJ7o1okeFaU5/z4PcpQmHsO5OHrMg==}
-
   streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
@@ -3252,8 +3246,6 @@ snapshots:
       react-dom: 19.0.0(react@19.0.0)
 
   source-map-js@1.2.1: {}
-
-  speech-recognition@0.0.1: {}
 
   streamsearch@1.1.0: {}
 

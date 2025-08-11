@@ -35,28 +35,28 @@ const getConversationDetails = (id: string) => {
       provider: "Dr. Sarah Smith",
       afterVisitNote: {
         instructions: [
-          "Schedule and complete CT abdomen with contrast within 1 week.",
-          "Omeprazole 20 mg – 1 tablet by mouth daily before breakfast.",
-          "Acetaminophen 500 mg – 1–2 tablets by mouth every 6 hours as needed for pain (max 3,000 mg/day).",
-          "Follow up in 2 weeks after CT results.",
-          "Go to ER if severe abdominal pain, vomiting blood, or high fever develops.",
+          "在 1 周内预约并完成腹部 CT（增强扫描）。",
+          "奥美拉唑 20 毫克 – 每天早餐前口服 1 片。",
+          "对乙酰氨基酚 500 毫克 – 每 6 小时口服 1–2 片，按需缓解疼痛（每日最大剂量 3,000 毫克）。",
+          "CT 检查结果出来后 2 周内复诊。",
+          "若出现剧烈腹痛、呕血或高热，请立即前往急诊。",
         ],
         medications: [
-          "Omeprazole 20 mg – 1 tablet by mouth daily before breakfast.",
-          "Acetaminophen 500 mg – 1–2 tablets by mouth every 6 hours as needed (max 3,000 mg/day).",
-          "Lisinopril 10 mg – 1 tablet by mouth daily (continue current medication).",
+          "奥美拉唑 20 毫克 – 每天早餐前口服 1 片。",
+          "对乙酰氨基酚 500 毫克 – 每 6 小时口服 1–2 片，按需使用（每日最大剂量 3,000 毫克）。",
+          "赖诺普利 10 毫克 – 每天口服 1 片（继续原有用药）。",
         ],
         patientSummary:
-          "45-year-old patient presented with abdominal pain that began yesterday evening. Pain is described as dull and constant, located in the upper abdomen, with associated nausea but no vomiting. Patient reports similar episodes 2-3 times over the past month. No fever, changes in bowel movements, or urinary symptoms. Currently taking Lisinopril for hypertension. No known allergies to medications.",
+          "45 岁患者，昨晚开始出现腹痛。疼痛描述为持续性钝痛，位于上腹部，伴有恶心但无呕吐。患者报告在过去一个月内曾出现过 2–3 次类似发作。无发热、排便改变或泌尿系统症状。目前因高血压服用赖诺普利。无已知药物过敏史。",
         recommendations: [
-          "Eat smaller, more frequent meals.",
-          "Avoid spicy, fatty, or acidic foods.",
-          "Stay hydrated with clear fluids.",
-          "Keep a food diary to identify triggers.",
-          "Elevate head of bed when sleeping.",
-          "Consider stress reduction techniques.",
+          "少量多餐。",
+          "避免辛辣、油腻或酸性食物。",
+          "保持充足清淡液体摄入。",
+          "保留饮食日记以寻找诱因。",
+          "睡觉时抬高床头。",
+          "适当进行减压放松活动。",
         ],
-        standingOrder: "Abdominal pain, rule out gastritis | Dr. Sarah Smith | January 15, 2024",
+        standingOrder: "腹痛，排除胃炎 | Sarah Smith 医生 | 2025 年 8 月 10 日",
       },
     },
     // Add more conversation details as needed
@@ -319,7 +319,7 @@ export default function ConversationDetailPage() {
             <CardContent className="space-y-6">
               {/* Instructions */}
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">Instructions</h3>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">指导</h3>
                 <div className="bg-slate-50 rounded-lg p-4 space-y-2">
                   {conversation.afterVisitNote.instructions.map((instruction: string, index: number) => (
                     <p key={index} className="text-slate-800">
@@ -331,7 +331,7 @@ export default function ConversationDetailPage() {
 
               {/* Medication List */}
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">Medication List</h3>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">用药清单</h3>
                 <div className="bg-slate-50 rounded-lg p-4 space-y-2">
                   {conversation.afterVisitNote.medications.map((medication: string, index: number) => (
                     <p key={index} className="text-slate-800">
@@ -343,7 +343,7 @@ export default function ConversationDetailPage() {
 
               {/* Patient Summary */}
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">Patient Summary</h3>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">病人摘要</h3>
                 <div className="bg-slate-50 rounded-lg p-4">
                   <p className="text-slate-800 leading-relaxed">{conversation.afterVisitNote.patientSummary}</p>
                 </div>
@@ -351,7 +351,7 @@ export default function ConversationDetailPage() {
 
               {/* Recommendations */}
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">Recommendations</h3>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">建议</h3>
                 <div className="bg-slate-50 rounded-lg p-4 space-y-2">
                   {conversation.afterVisitNote.recommendations.map((recommendation: string, index: number) => (
                     <p key={index} className="text-slate-800">
@@ -363,7 +363,7 @@ export default function ConversationDetailPage() {
 
               {/* Standing Order */}
               <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">Standing Order</h3>
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">医嘱</h3>
                 <div className="bg-slate-50 rounded-lg p-4">
                   <p className="text-slate-800">{conversation.afterVisitNote.standingOrder}</p>
                 </div>

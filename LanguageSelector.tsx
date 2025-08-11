@@ -1,6 +1,7 @@
 "use client"
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ChevronDown } from "lucide-react"
 
 interface LanguageSelectorProps {
   label: string
@@ -9,38 +10,43 @@ interface LanguageSelectorProps {
 }
 
 const languages = [
-  { code: "en", name: "English" },
-  { code: "es", name: "Spanish" },
-  { code: "fr", name: "French" },
-  { code: "de", name: "German" },
-  { code: "it", name: "Italian" },
-  { code: "pt", name: "Portuguese" },
-  { code: "ru", name: "Russian" },
-  { code: "ja", name: "Japanese" },
-  { code: "ko", name: "Korean" },
-  { code: "zh", name: "Chinese" },
-  { code: "ar", name: "Arabic" },
-  { code: "hi", name: "Hindi" },
+  { code: "en", name: "English", flag: "🇺🇸" },
+  { code: "es", name: "Spanish", flag: "🇪🇸" },
+  { code: "zh", name: "Mandarin", flag: "🇨🇳" },
 ]
 
-export function LanguageSelector({ label, value, onChange }: LanguageSelectorProps) {
-  const selectedLanguage = languages.find((lang) => lang.code === value)
+export default function LanguageSelector({ label, value, onChange }: LanguageSelectorProps) {
+  const selectedLanguage = languages.find((lang) => lang.code === value) || languages[0]
 
   return (
-    <div className="flex flex-col space-y-2 flex-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
-          <SelectValue>{selectedLanguage?.name || "Select language"}</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
+    <div className="flex flex-col items-center space-y-2">
+      <span className="text-sm font-medium text-slate-600">{label}</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-32 sm:w-36 justify-between bg-white/80 backdrop-blur-sm border-slate-200 hover:bg-white/90"
+          >
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">{selectedLanguage.flag}</span>
+              <span className="text-sm font-medium">{selectedLanguage.name}</span>
+            </div>
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-36 bg-white/95 backdrop-blur-sm">
           {languages.map((language) => (
-            <SelectItem key={language.code} value={language.code}>
-              {language.name}
-            </SelectItem>
+            <DropdownMenuItem
+              key={language.code}
+              onClick={() => onChange(language.code)}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
+              <span className="text-lg">{language.flag}</span>
+              <span className="text-sm">{language.name}</span>
+            </DropdownMenuItem>
           ))}
-        </SelectContent>
-      </Select>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }
